@@ -5,22 +5,27 @@ import { addDoc, collection, doc, setDoc } from "firebase/firestore";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { db } from "./firebase/firebase";
-import LoginScreen from "./src/auth/LoginScreen";
-import HomeScreen from "./src/HomeScreen";
+
+import Welcome from "./src/Welcome";
+import Login from "./src/auth/Login";
 import RegisterDriver from "./src/auth/RegisterDriver";
 import RegisterParent from "./src/auth/RegisterParent";
 import Childern from "./src/auth/Childern";
+import HomeScreen from "./src/screen/HomeScreen";
+import GetAttendence from "./src/screen/GetAttendence";
+import SendMessage from "./src/screen/SendMessage";
 import Locations from "./src/screen/Locations";
 import StudentAttendence from "./src/screen/StudentAttendence";
-import DriverHome from "./src/screen/DriverHome";
-import QrCodeScan from "./src/screen/QrCodeScan";
-import Push from "./src/screen/Push";
+
+
+
 import Notifications from "./src/screen/Notifications";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Entypo } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
+
 
 // Thanks for watching
 const Tab =createBottomTabNavigator();
@@ -56,7 +61,7 @@ export default function App() {
 
   const Stack = createNativeStackNavigator();
   const globalScreenOption = {
-    headerStyle: { backgroundColor: "#2c6bed" },
+    headerStyle: { backgroundColor: "#FEC337" },
     headerTitleStyle: { color: "white" },
     headerTintColor: "white",
   };
@@ -64,20 +69,25 @@ export default function App() {
   <>
     <NavigationContainer>
       <Stack.Navigator screenOptions={globalScreenOption}>
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="Login Driver" component={LoginScreen} />
-        <Stack.Screen name="DriverHome" component={DriverHome} />
-        <Stack.Screen name="StudentAttendence" component={StudentAttendence} />
-        <Stack.Screen name="QrCodeScan" component={QrCodeScan} />
-        <Stack.Screen name="Push Notification" component={Push} />
-        <Stack.Screen name="Notifications" component={Notifications} />
+        <Stack.Screen name="Welcome" component={Welcome} />
+        <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Register Parent" component={RegisterParent} />
         <Stack.Screen name="Register Driver" component={RegisterDriver} />
-        <Stack.Screen name="Childern" component={Childern} />
-        <Stack.Screen name="Locations" component={Locations} />
+        <Stack.Screen name="Add Child" component={Childern} />
+        <Stack.Screen name="Home Screen" component={HomeScreen} />
+        <Stack.Screen name="Attendence Sheet" component={StudentAttendence} />
+        <Stack.Screen name="Get Attendence" component={GetAttendence} />
+        <Stack.Screen name="Parents Location" component={Locations} />
+        <Stack.Screen name="Send Message" component={SendMessage} />
+        <Stack.Screen name="Notifications" component={Notifications} />
+        
+        
         
       </Stack.Navigator>
     </NavigationContainer>
+     {/* <AuthProvider>
+            <AppNavigator />
+          </AuthProvider> */}
      {/* <NavigationContainer>
        <Tab.Navigator screenOptions={screenOptions}>
           <Tab.Screen 

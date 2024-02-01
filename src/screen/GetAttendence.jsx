@@ -6,10 +6,10 @@ import { KeyboardAvoidingView } from "react-native";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import { db } from "../../firebase/firebase";
 
-const QrCodeScan = ({ navigation }) => {
+const GetAttendence = ({ navigation }) => {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
-  const [text, setText] = useState("No such a Record");
+  const [text, setText] = useState("Not sacn yet");
   const [datas, setDatas] = useState([]);
   const [sets, setSets] = useState(true);
   const [time, setTime] = useState("");
@@ -70,28 +70,32 @@ const QrCodeScan = ({ navigation }) => {
     sets == true ? (db.collection("Notification").add({
       name: datas.name,
       parentId: datas.parentId,
-      date: new Date().toLocaleString(),
+      date: new Date().getTime(),
       test: sets,
-      message: "Your child in the bus"
+      message: "Your child boarded the bus"
     })).then((doc) => {
       db.collection("children")
         .doc(text)
         .update({
           mattendance: sets
         })
+    }) .catch((error) => {
+      console.log("Error getting document:", error);
     }) : (db.collection("Notification").add({
       name: datas.name,
       parentId: datas.parentId,
-      date: new Date().toLocaleString(),
+      date: new Date().getTime(),
       test: sets,
-      message: "Your child out the bus"
+      message: "Your child was dropped off from the bus"
     })).then((doc) => {
       db.collection("children")
         .doc(text)
         .update({
           mattendance: sets
         })
-    })
+    }) .catch((error) => {
+      console.log("Error getting document:", error);
+    });
     setScanned(false);
   };
 
@@ -102,26 +106,30 @@ const QrCodeScan = ({ navigation }) => {
       parentId: datas.parentId,
       date: new Date().getTime(),
       test: sets,
-      message: "Your child in the bus"
+      message: "Your child boarded the bus"
     })).then((doc) => {
       db.collection("children")
         .doc(text)
         .update({
           eattendance: sets
         })
+    }).catch((error) => {
+      console.log("Error getting document:", error);
     }) : (db.collection("Notification").add({
       name: datas.name,
       parentId: datas.parentId,
       date: new Date().getTime(),
       test: sets,
-      message: "Your child out the bus"
+      message: "Your child was dropped off from the bus"
     })).then((doc) => {
       db.collection("children")
         .doc(text)
         .update({
           eattendance: sets
         })
-    })
+    }).catch((error) => {
+      console.log("Error getting document:", error);
+    }) 
     setScanned(false);
   };
 
@@ -149,22 +157,26 @@ const QrCodeScan = ({ navigation }) => {
     <KeyboardAvoidingView behavior="height" style={styles.container}>
       <StatusBar style="light" />
       {time >= 12 ? (
-        <Text style={styles.text}>Student Evening Attendence </Text>
+        <Text style={styles.text}>Scan the QRCde </Text>
       ) : (
-        <Text style={styles.text}>Student Morning Attendence </Text>
+        <Text style={styles.text}>Scan the QRCde </Text>
       )}
       {time >= 12 ? (<View style={styles.barcodebox}>
         <BarCodeScanner
           onBarCodeScanned={scanned ? undefined : ehandleBarCodeScanned}
-          style={{ height: 450, width: 450 }}
+          style={{ height: 600, width: 600 }}
         />
       </View>) : (<View style={styles.barcodebox}>
         <BarCodeScanner
           onBarCodeScanned={scanned ? undefined : mhandleBarCodeScanned}
-          style={{ height: 450, width: 450 }}
+          style={{ height: 600, width: 600 }}
         />
       </View>)}
-
+      
+      <Text style={styles.text3}>{datas.name}</Text>
+      <Text style={styles.text3}>{text}</Text>
+      
+     
      {scanned && (
         <Button
           onPress={() => setScanned(false)}
@@ -190,6 +202,7 @@ const QrCodeScan = ({ navigation }) => {
       ) : text == "No such a Record" ? (
         <Text></Text>
       ) : (
+        scanned ? (
         <Button
           containerStyle={{
             width: 200,
@@ -199,24 +212,16 @@ const QrCodeScan = ({ navigation }) => {
 
           mode="contained"
           onPress={mupdate}
-        >M Update</Button>
+        >M Update</Button> ) : ("")
       )}
 
 
-      <Button
-        containerStyle={{
-          width: 200,
-          marginHorizontal: 100,
-          marginVertical: 10,
-        }}
-        mode="contained"
-        onPress={() => navigation.navigate("DriverHome")}
-      >Go Back</Button>
+      
     </KeyboardAvoidingView>
   );
 };
 
-export default QrCodeScan;
+export default GetAttendence;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -249,17 +254,27 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginLeft: 60,
   },
+  text3: {
+    color: "#00154E",
+    fontSize:15,
+    marginLeft:15,
+    fontWeight:'bold',
+  
+    
+  },
   button: {
     width: 50,
     marginTop: 10,
     alignItems: "center",
   },
   text: {
-    color: "red",
-    justifyContent: "center",
-    marginBottom: 30,
-    fontSize: 20,
-    fontWeight: "500"
+    color: "#00154E",
+    fontSize:25,
+    marginBottom:20,
+    textAlign:"center",
+    marginTop:20,
+    fontWeight:'bold',
+    
   },
   item: {
     width: 100,

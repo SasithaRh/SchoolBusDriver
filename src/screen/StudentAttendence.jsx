@@ -1,29 +1,28 @@
-import { View, Text, StyleSheet, Alert , FlatList, Image } from "react-native";
+import { View, Text, StyleSheet, Alert, FlatList, Image, ScrollView } from "react-native";
 import React, { useEffect, useState } from "react";
-import { Button } from 'react-native-paper';
+import { Button, Divider } from 'react-native-paper';
 import { StatusBar } from "expo-status-bar";
 import { KeyboardAvoidingView } from "react-native";
 import { auth, addDoc, collection, db } from "../../firebase/firebase";
 import { Checkbox } from 'react-native-paper';
-
+import { query, where } from "firebase/firestore";  
 const StudentAttendence = ({ navigation }) => {
   const [Attendence, setAttendence] = useState([]);
   const [time, setTime] = useState("");
   const [user, setUser] = useState("");
   const [driver, setDriver] = useState("");
+  const [presentStudent, setPresentStudent] = useState([]);
+  
+  var hour = new Date().getHours();
+  useEffect(() => {
+    setTime(hour);
 
-  auth.onAuthStateChanged((authUser) => {
-    if (authUser) {
-      setDriver(authUser.uid);
-     } else {
-      setDriver(null);
-    }
-  });
- useEffect(() => {
+  }, []);
+  useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((authUser) => {
       if (authUser) {
         setUser(authUser.uid);
-       
+
       } else {
         setUser(null);
       }
@@ -32,9 +31,10 @@ const StudentAttendence = ({ navigation }) => {
       unsubscribe();
     };
   }, [user]);
- useEffect(() => {
+  useEffect(() => {
     db.collection("children")
-    .where('driverid', '==', user)
+      .where('driverid', '==', user)
+
       .onSnapshot((snapShot) =>
         setAttendence(
           snapShot.docs.map((doc) => ({
@@ -43,31 +43,135 @@ const StudentAttendence = ({ navigation }) => {
           }))
         )
       );
-  }, []);
+  }, [user]);
+  // useEffect(() => {
+  // db.collection("children")
+  // .where('mattendance', '==', true)
 
+  // .onSnapshot((snapShot) =>
+  //   setPresentStudent(
+  //     snapShot.docs.map((doc) => ({
+  //       key: doc.id,
+  //       data: doc.data(),
+  //     }))
+  //   )
+  // );
+//  var q1= db.collection("children").where("mattendance", "==", true).where('driverid', '==', user);
+//   q1.get().then((querySnapshot) => {
+//     const notification = querySnapshot.docs.map((doc) => ({
+//       key: doc.id,
+//       data: doc.data(),
+//     }));
 
+//     setPresentStudent(notification);
+//   });
+
+// }, [Attendence]);
+// const update = () =>{
+//   db.collection("present")
+//           .doc()
+//           .set({
+//             name: presentStudent,
+            
+//           });
+  
+// }
 
   return (
-    <KeyboardAvoidingView behavior="height" style={styles.container}>
-      <StatusBar style="light" />
+   <>
+   
+   <View
+        style={{
+          paddingTop: 30,
+          marginBottom:30,
+          flexDirection: 'row',
+          justifyContent: 'center',
+        }}>
       {time >= 12 ? (
-        <Text style={styles.text}>Student Evening Attendence </Text>
+        <Text style={styles.text1}>Student Evening Attendence </Text>
       ) : (
-        <Text style={styles.text}>Student Morning Attendence </Text>
+        <Text style={styles.text1}>Student Morning Attendence </Text>
       )}
+       </View>
+       <View style={styles.column2} >
+        
       {time >= 12
         ? Attendence.map(({ key, data }) => (
-            <Text key={key} style={styles.title}>
-              {data.name} <Checkbox checked={data.eattendance} />
-            </Text>
-          ))
+          <>
+             <View
+        style={{
+          marginBottom:10,
+          flexDirection: 'row',
+          
+        }}>
+               <View
+        style={{
+          marginBottom:10,
+          flexDirection: 'row',
+          width:220
+        }}><Text key={key} style={styles.title}>
+        {data.name} 
+      </Text></View>
+      <View
+        style={{
+          marginBottom:10,
+          flexDirection: 'row',
+          
+        }}>
+          <Checkbox  status={data.eattendance ? 'checked' : 'unchecked'} />
+          {data.eattendance ? <Text>In</Text> : <Text>Out</Text>}
+          
+          </View>
+          </View>
+          </>
+        ))
         : Attendence.map(({ key, data }) => (
-            <Text key={key} style={styles.title}>
-              {data.name} <Checkbox checked={data.mattendance} />
-            </Text>
-          ))}
-          <Text>{driver}</Text>
+          <>
+          <View
+     style={{
+       marginBottom:10,
+       flexDirection: 'row',
+       
+     }}>
+            <View
+     style={{
+       marginBottom:10,
+       flexDirection: 'row',
+       width:220
+     }}><Text key={key} style={styles.title}>
+     {data.name} 
+   </Text></View>
+   <View
+     style={{
+       marginBottom:10,
+       flexDirection: 'row',
+       
+     }}>
+       <Checkbox  status={data.mattendance ? 'checked' : 'unchecked'} />
+       {data.mattendance ? <Text>In</Text> : <Text>Out</Text>}
+       </View>
+       
+       </View>
+       </>
+        ))}
+        
     
+    
+        </View>
+{/* <Text>{presentStudent.length}</Text>
+{presentStudent.map(({ key, data }) => (
+          <Text key={key} style={styles.title}>
+           {key}
+          </Text>))} */}
+      {/* <Button
+        containerStyle={{
+          width: 200,
+          marginHorizontal: 100,
+          marginVertical: 10,
+        }}
+        mode="contained"
+
+        onPress={update}  >Update</Button>
       <Button
         containerStyle={{
           width: 200,
@@ -75,10 +179,12 @@ const StudentAttendence = ({ navigation }) => {
           marginVertical: 10,
         }}
         mode="contained"
-       
+
         onPress={() => navigation.goBack()}
-      >Back</Button>
-    </KeyboardAvoidingView>
+      >Back</Button> */}
+
+       
+   </>
   );
 };
 
@@ -87,7 +193,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    backgroundColor: "#ecf0f1",
+    backgroundColor: "#ffffff",
     padding: 8,
     alignItems: "center",
   },
@@ -101,10 +207,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    color: "red",
+    tintColor: "#00154",
     fontSize: 20,
-
-    fontWeight: "500",
+    marginRight:50,
+    fontWeight: "400",
   },
   inputContainer: {
     width: 300,
@@ -117,10 +223,15 @@ const styles = StyleSheet.create({
     marginTop: 10,
     alignItems: "center",
   },
-  text: {
-    color: "red",
-    alignItems: "center",
-    fontSize: 20,
+
+  text1: {
+    color: "#00154E",
+    fontSize:20,
+    marginBottom:20,
+    textAlign:"center",
+    marginTop:20,
+    fontWeight:'bold',
+    
   },
   item: {
     width: 100,
@@ -130,4 +241,12 @@ const styles = StyleSheet.create({
     marginHorizontal: 120,
     marginVertical: 70,
   },
+
+  column2:{
+    marginTop:-0,
+    marginBottom:0,
+    marginLeft:50,
+
+ 
+   }, 
 });

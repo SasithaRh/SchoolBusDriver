@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet,Alert, FlatList,KeyboardAvoidingView } from "react-native";
+import { View, Text, StyleSheet, Alert, FlatList, KeyboardAvoidingView } from "react-native";
 import React, { useState, useEffect } from "react";
 import { Button } from 'react-native-paper';
 import { TextInput } from 'react-native-paper';
@@ -11,108 +11,180 @@ const Childern = ({ navigation }) => {
   const [name, setName] = useState("");
   const [age, setAge] = useState("");
   const [grade, setGrade] = useState("");
-  const [category, setCategory] = useState([""]);
+  const [category, setCategory] = useState([]);
+
+  const [pid, setPid] = useState("");
   const [ss, setSs] = useState([]);
-  const [QRcode, setQRcode] = useState("default");
   const [driver, setDriver] = useState("");
+  const [school, setSchool] = useState("");
 
   auth.onAuthStateChanged((authUser) => {
     if (authUser) {
       setDriver(authUser.uid);
-     
+
     } else {
       setDriver(null);
     }
   });
+  // useEffect(() => {
+  //   db.collection("Parent")
+  //     .orderBy("name", "asc")
+  //     .onSnapshot((snapShot) =>
+  //       setSs(
+  //         snapShot.docs.map((doc) => ({
+  //           key: doc.id,
+  //           data: doc.data(),
+  //         }))
+  //       )
+  //     );
+  // }, [driver]);
+  useEffect(() => {
 
-  db.collection("Parent")
-    .orderBy("name", "asc")
-    .onSnapshot((snapShot) =>
-      setSs(
-        snapShot.docs.map((doc) => ({
+    db.collection("Parent")
+      .where('driverid', '==', driver)
+      .get()
+      .then((querySnapshot) => {
+        const notification = querySnapshot.docs.map((doc) => ({
           key: doc.id,
           data: doc.data(),
-        }))
-      )
-    );
+        }));
 
+        setSs(notification);
+      });
+
+  }, [driver]);
   const register = () => {
-    
-        db.collection("children").add({
-          parentId: category,
-          name: name,
-          age: age,
-          grade: grade,
-          mattendance: false,
-          eattendance:false,
-          driverid:driver
-        })
-        Alert.alert('Child added Successfully');
-        setAge("")
-        setGrade("")
-        setName("")
-        
-     
-
-  };
-
+    if (name == "" || age == "" || grade == "" || school == "") {
+      Alert.alert("All the feilds are rquired")
+    }
+    // else if(age > 5 || age < 10){
+    //   Alert.alert("Age should be between 5 to 10")
+    // }
+    else {
+      db.collection("children").add({
+        parentId: category,
+        name: name,
+        age: age,
+        grade: grade,
+        school: school,
+        mattendance: false,
+        eattendance: false,
+        driverid: driver
+      })
+      Alert.alert('Child added Successfully');
+      setAge("")
+      setGrade("")
+      setName("")
+      setSchool("")
+    };
+  }
   return (
     <>
-      <KeyboardAvoidingView
-        behavior="padding"
-        styles={styles.container}
-        keyboardVerticalOffset={230}
-      >
-        <StatusBar style="light" />
 
-        <View style={styles.inputContainer}>
-          <SelectList
-            setSelected={setCategory}
-            data={ss.map(({ key, data }) => key)}
-            placeholder={"Select Parent"}
-          />
-          <TextInput
-            placeholder="Full Name"
-            autoFocus
-            type="text"
-            value={name}
-            onChangeText={(text) => {
-              setName(text);
-            }}
-          />
 
-          <TextInput
-            placeholder="Age"
-            value={age}
-            type="text"
-            onChangeText={(text) => {
-              setAge(text);
-            }}
-          />
-          <TextInput
-            placeholder="Grade"
-            value={grade}
-            type="text"
-            onChangeText={(text) => {
-              setGrade(text);
-            }}
-          />
+      <View style={styles.inputContainer}>
+        <SelectList
           
-        </View>
-      </KeyboardAvoidingView>
+          setSelected={setCategory}
+          data={ss.map(({ key, data }) => ({ value: key}))}
+          placeholder={"Select Parent"}
+          
+        />
+        
+        <TextInput
+          cursorColor="#00154E"
+          activeUnderlineColor='#00154E'
+          style={{
+            width: 320,
+            marginHorizontal: 0,
+            marginVertical: 0,
+            marginTop: 0,
+            marginBottom: 10,
+            marginTop: 20,
+            backgroundColor: '#ffffff',
+          }}
+          mode="flat"
+          placeholder='Full Name'
+          autoFocus
+          type="text"
+          value={name}
+          onChangeText={(text) => { setName(text) }}
+        />
+        <TextInput
+          cursorColor="#00154E"
+          activeUnderlineColor='#00154E'
+          style={{
+            width: 320,
+            marginHorizontal: 0,
+            marginVertical: 0,
+            marginTop: 0,
+            marginBottom: 10,
+            backgroundColor: '#ffffff',
+          }}
+          mode="flat"
+          placeholder='Age'
+          autoFocus
+          type="text"
+          keyboardType='number-pad'
+          value={age}
+          onChangeText={(text) => { setAge(text) }}
+        />
+        <TextInput
+          cursorColor="#00154E"
+          activeUnderlineColor='#00154E'
+          style={{
+            width: 320,
+            marginHorizontal: 0,
+            marginVertical: 0,
+            marginTop: 0,
+            marginBottom: 10,
+            backgroundColor: '#ffffff',
+          }}
+          mode="flat"
+          placeholder='Grade'
+          autoFocus
+          type="text"
+          value={grade}
+          onChangeText={(text) => { setGrade(text) }}
+        />
+        <TextInput
+          cursorColor="#00154E"
+          activeUnderlineColor='#00154E'
+          style={{
+            width: 320,
+            marginHorizontal: 0,
+            marginVertical: 0,
+            marginTop: 0,
+            marginBottom: 40,
+            backgroundColor: '#ffffff',
+          }}
+          mode="flat"
+          placeholder='School Name'
+          autoFocus
+          type="text"
+          value={school}
+          onChangeText={(text) => { setSchool(text) }}
+        />
 
-      <Button
-       
-        containerStyle={{
-          width: 200,
-          marginHorizontal: 100,
-          marginVertical: 10,
-        }}
-        spacing={4}
-        onPress={register}
-        mode='outlined'
-      >Register</Button>
-   
+
+
+
+        <Button
+          theme={{ roundness: 2 }}
+          textColor='#00154E'
+          style={{
+            width: 300,
+
+            marginVertical: 10,
+            marginTop: 0,
+            borderColor: '#00154E',
+            borderWidth: 2,
+          }}
+          mode="outlined"
+
+          onPress={register}
+        > Register </Button>
+      </View>
     </>
   );
 };
@@ -137,9 +209,10 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     width: 300,
-    marginTop: 100,
-    justifyContent: "center",
+    marginTop: 50,
+    justifyContent: 'center',
     marginLeft: 60,
+
   },
   button: {
     width: 50,

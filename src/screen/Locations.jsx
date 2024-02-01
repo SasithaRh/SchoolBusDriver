@@ -36,6 +36,7 @@ const Locations = ({ navigation }) => {
           snapShot.docs.map((doc) => ({
             key: doc.id,
             data: doc.data().location,
+            name:doc.data().name,
           }))
         )
       );
@@ -57,51 +58,26 @@ const Locations = ({ navigation }) => {
   useEffect(() => {
     const interval = setInterval(() => {
       userlocation();
-    }, 2000);
+    }, 4000);
     return () => clearInterval(interval)
   }, [user])
 
   return (
     <SafeAreaView style={styles.container}>
       <MapView style={styles.map} initialRegion={mapRegion} >
-        {destination.map(({ key, data }) => (
-          <Marker coordinate={data} />
+        {destination.map(({ key, data,name }) => (
+          <Marker key={key} coordinate={data}  title={name} />
         ))}
         <Marker coordinate={origin} >
           <View>
             <Image
-              source={require("../image/logo.jpg")}
+              source={require("../image/map_icon.png")}
               style={styles.markerImage}
             />
           </View></Marker>
 
       </MapView>
 
-      <Text>{destination.length}</Text>
-
-      {destination.map(({ key, data }) => (
-        <React.Fragment key={key}>
-
-
-          <Text>{data.location}</Text>
-
-
-        </React.Fragment>
-      ))
-      }
-
-      {/*    
-
-      <Button
-        containerStyle={{
-          width: 200,
-          marginHorizontal: 100,
-          marginVertical: 10,
-        }}
-        type="outline"
-        title="Home"
-        onPress={() => navigation.navigate("QrScreen")}
-      /> */}
 
     </SafeAreaView>
   );
@@ -131,7 +107,7 @@ const styles = StyleSheet.create({
   },
   map: {
     width: 500,
-    height: 500,
+    height: 700,
   },
   inputContainer: {
     width: 300,
